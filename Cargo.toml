@@ -1,0 +1,8 @@
+[package]
+name = "sl-graph"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Static graph optimization and memory planning for StarLight inference."
+repository = "https://github.com/SeekStarAI/sl-graph"
+readme = "README.md"
