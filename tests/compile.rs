@@ -822,17 +822,16 @@ fn rejects_state_shapes_that_disagree_with_the_kind() {
             },
         }],
     };
-    assert_eq!(program.validate(), Ok(()));
+    assert_eq!(
+        program.validate(),
+        Err(IrError::InvalidStateShape { value: ValueId(0) })
+    );
 
     let capabilities = caps(&[], &[]);
     let error = compile(&program, &seq_spec(4, 8), &capabilities).unwrap_err();
     assert_eq!(
         error,
-        CompileError::InvalidStateShape {
-            value: ValueId(0),
-            expected: vec![1, 1, 2, 4, 1, 8],
-            actual: vec![1, 1, 2, 4, 1, 4],
-        }
+        CompileError::Ir(IrError::InvalidStateShape { value: ValueId(0) })
     );
 }
 
