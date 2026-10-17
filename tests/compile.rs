@@ -6,8 +6,9 @@
 use sl_graph::{compile, CompileError};
 use sl_ir::{
     BackendTag, CommandBuffer, DType, DTypeSet, DeviceCapabilities, Dim, Effect, IrError, Node, Op,
-    OpCode, OpSet, Program, Shape, ShapeConstraints, ShapeSpec, ShapeSpecEntry, Slot, StateDecl,
-    StateKind, SymDimDecl, SymId, Value, ValueId, ValueRole, IR_VERSION,
+    OpCode, OpSet, Program, QuantizationFormat, Shape, ShapeConstraints, ShapeSpec, ShapeSpecEntry,
+    Slot, StateDecl, StateKind, SymDimDecl, SymId, TensorEncoding, Value, ValueId, ValueRole,
+    IR_VERSION,
 };
 
 const SEQ: SymId = SymId(0);
@@ -833,6 +834,32 @@ fn rejects_state_shapes_that_disagree_with_the_kind() {
         error,
         CompileError::Ir(IrError::InvalidStateShape { value: ValueId(0) })
     );
+}
+
+#[test]
+fn preserves_parameter_encoding() {
+    let encoding = TensorEncoding::GroupwiseQuantized {
+        format: QuantizationFormat::Int4,
+        group_size: 4,
+    };
+    let program = Program {
+        sym_dims: Vec::new(),
+        values: vec![Value::with_encoding(
+            DType::F32,
+            Shape::consts(&[4, 4]),
+            ValueRole::Param,
+            encoding.clone(),
+        )],
+        nodes: Vec::new(),
+        inputs: Vec::new(),
+        outputs: Vec::new(),
+        states: Vec::new(),
+    };
+    assert_eq!(program.validate(), Ok(()));
+
+    let buffer = compile(&program, &ShapeSpec::default(), &caps(&[], &[]))
+        .expect("a parameter-only program should compile");
+    assert_eq!(buffer.values[0].encoding, encoding);
 }
 
 fn live_ranges(buffer: &CommandBuffer) -> Vec<Option<(usize, usize)>> {

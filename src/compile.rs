@@ -93,7 +93,12 @@ impl Builder<'_> {
         let mut values = Vec::with_capacity(self.program.values.len());
         for value in &self.program.values {
             let shape = self.resolve_shape(&value.shape)?;
-            values.push(Value::new(value.dtype, shape, value.role));
+            values.push(Value::with_encoding(
+                value.dtype,
+                shape,
+                value.role,
+                value.encoding.clone(),
+            ));
         }
         self.values = values;
 
