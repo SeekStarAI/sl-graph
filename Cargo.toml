@@ -6,3 +6,6 @@ license = "MIT"
 description = "Static graph optimization and memory planning for StarLight inference."
 repository = "https://github.com/SeekStarAI/sl-graph"
 readme = "README.md"
+
+[dependencies]
+sl-ir = "0.1.0"
